@@ -32,8 +32,11 @@ https://github.com/user-attachments/assets/5256e6de-0484-4bef-b895-a79b62438027
 - System monitoring for onboard temperature, power consumption and relative humidity
 - Two configurable temperature probes for rack, ambient or custom placement
 - Dual fan control with RPM tracking and airflow estimation
+- Onboard display showing temperatures, fan RPM, IP address and MAC address
 - Automatic fan curves with linked or independent behavior
 - Temporary boost mode to force maximum cooling for a defined duration
+- Audible alert when a fan or temperature probe is disconnected
+- Onboard button control to mute or disable the audible alert
 - Web dashboard with live status cards and historical charts
 - History browsing by custom period, day or hour
 - Local or remote access with authentication
