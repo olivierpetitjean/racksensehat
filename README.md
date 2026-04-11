@@ -73,55 +73,44 @@ The repository is not only a software project. It also includes the PCB design f
 ## Software Architecture
 
 ```mermaid
-flowchart LR
+flowchart TB
     browser([Browser])
     kiosk([Kiosk Display])
+    front["Angular Dashboard"]
+    api[".NET 8 API"]
+    proxy["MQTT Proxy (/mqtt)"]
+    mqtt[("Mosquitto Broker")]
+    py["Python Hardware Service"]
+    db[("SQLite Database")]
+    hw["Sensors / Fans / GPIO"]
+    svc["systemd"]
 
-    subgraph app["Application Layer"]
-        front["Angular Dashboard"]
-        api[".NET 8 API"]
-        proxy["YARP MQTT Proxy (/mqtt)"]
-    end
-
-    subgraph messaging["Messaging Layer"]
-        mqtt[("Mosquitto Broker")]
-    end
-
-    subgraph device["Device Layer"]
-        py["Python Hardware Service"]
-        svc["systemd"]
-        hw["GPIO / Sensors / Fans"]
-    end
-
-    subgraph data["Data Layer"]
-        db[("SQLite Database")]
-    end
-
-    browser -->|"HTTP / HTTPS"| api
-    kiosk -->|"Kiosk mode"| api
-    api -->|"Serves SPA assets"| front
-    front -->|"REST API"| api
+    browser -->|"UI"| front
+    kiosk -->|"Kiosk UI"| front
+    front -->|"REST"| api
     front -->|"WebSocket MQTT"| proxy
-    proxy -->|"MQTT bridge to local broker"| mqtt
-    py -->|"Publishes telemetry"| mqtt
-    mqtt -->|"Live updates"| proxy
-    api -->|"Read / write settings and history"| db
-    py -->|"Persist telemetry samples"| db
-    py -->|"Read sensors / control fans"| hw
-    api -->|"Service status / control"| svc
-    svc -->|"Start / stop / restart"| py
+    proxy -->|"MQTT"| mqtt
+    mqtt -->|"Live telemetry"| proxy
+    py -->|"Publish"| mqtt
+    py -->|"Store samples"| db
+    api -->|"Read / write"| db
+    api -->|"Control service"| svc
+    svc -->|"Manage"| py
+    py -->|"Read / drive"| hw
 
-    classDef client fill:#1f2430,stroke:#8aa1ff,color:#ffffff,stroke-width:1.5px;
-    classDef appnode fill:#2d3345,stroke:#6ea8fe,color:#ffffff,stroke-width:1.5px;
-    classDef msg fill:#45325b,stroke:#c77dff,color:#ffffff,stroke-width:1.5px;
-    classDef dev fill:#2f3e46,stroke:#52b788,color:#ffffff,stroke-width:1.5px;
-    classDef storage fill:#4a3b2f,stroke:#f4a261,color:#ffffff,stroke-width:1.5px;
+    classDef client fill:#202534,stroke:#90a4ff,color:#ffffff,stroke-width:1.5px;
+    classDef ui fill:#2f3d56,stroke:#6ea8fe,color:#ffffff,stroke-width:1.5px;
+    classDef backend fill:#304b46,stroke:#58c4a3,color:#ffffff,stroke-width:1.5px;
+    classDef msg fill:#4b3561,stroke:#d08bff,color:#ffffff,stroke-width:1.5px;
+    classDef data fill:#5a4330,stroke:#f2a65a,color:#ffffff,stroke-width:1.5px;
+    classDef device fill:#4a3f46,stroke:#ff7b7b,color:#ffffff,stroke-width:1.5px;
 
     class browser,kiosk client;
-    class front,api,proxy appnode;
+    class front ui;
+    class api,proxy,svc backend;
     class mqtt msg;
-    class py,svc,hw dev;
-    class db storage;
+    class db data;
+    class py,hw device;
 ```
 
 ### Python service
