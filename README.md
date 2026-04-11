@@ -114,6 +114,18 @@ Main entry points:
 - [front/src/app/pages/dashboard.component.ts](front/src/app/pages/dashboard.component.ts)
 - [front/src/app/app.routes.ts](front/src/app/app.routes.ts)
 
+## Dashboard
+
+The web interface provides both live monitoring cards and historical charts.
+
+### Live overview
+
+![ThermalGuard HAT dashboard cards](docs/images/thermalguard-dashboard-cards.png)
+
+### History view
+
+![ThermalGuard HAT dashboard history](docs/images/thermalguard-dashboard-history.png)
+
 ## Installation
 
 Run the installation script on the Raspberry Pi as root:
