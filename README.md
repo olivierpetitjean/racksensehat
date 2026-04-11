@@ -72,6 +72,58 @@ The repository is not only a software project. It also includes the PCB design f
 
 ## Software Architecture
 
+```mermaid
+flowchart LR
+    browser([Browser])
+    kiosk([Kiosk Display])
+
+    subgraph app["Application Layer"]
+        front["Angular Dashboard"]
+        api[".NET 8 API"]
+        proxy["YARP MQTT Proxy (/mqtt)"]
+    end
+
+    subgraph messaging["Messaging Layer"]
+        mqtt[("Mosquitto Broker")]
+    end
+
+    subgraph device["Device Layer"]
+        py["Python Hardware Service"]
+        svc["systemd"]
+        hw["GPIO / Sensors / Fans"]
+    end
+
+    subgraph data["Data Layer"]
+        db[("SQLite Database")]
+    end
+
+    browser -->|"HTTP / HTTPS"| api
+    kiosk -->|"Kiosk mode"| api
+    api -->|"Serves SPA assets"| front
+    front -->|"REST API"| api
+    front -->|"WebSocket MQTT"| proxy
+    proxy -->|"MQTT bridge to local broker"| mqtt
+    py -->|"Publishes telemetry"| mqtt
+    mqtt -->|"Live updates"| proxy
+    api -->|"Read / write settings and history"| db
+    py -->|"Persist telemetry samples"| db
+    py -->|"Read sensors / control fans"| hw
+    api -->|"Service status / control"| svc
+    svc -->|"Start / stop / restart"| py
+
+    classDef client fill:#1f2430,stroke:#8aa1ff,color:#ffffff,stroke-width:1.5px;
+    classDef appnode fill:#2d3345,stroke:#6ea8fe,color:#ffffff,stroke-width:1.5px;
+    classDef msg fill:#45325b,stroke:#c77dff,color:#ffffff,stroke-width:1.5px;
+    classDef dev fill:#2f3e46,stroke:#52b788,color:#ffffff,stroke-width:1.5px;
+    classDef storage fill:#4a3b2f,stroke:#f4a261,color:#ffffff,stroke-width:1.5px;
+
+    class browser,kiosk client;
+    class front,api,proxy appnode;
+    class mqtt msg;
+    class py,svc,hw dev;
+    class db storage;
+```
+
 ### Python service
 
 The Python service is the hardware-facing part of the system. It:
@@ -155,11 +207,24 @@ Reason:
 The database location is configurable:
 
 - backend connection string in [back/appsettings.json](back/appsettings.json)
-- Python database path in [python/settings.example.json](python/settings.example.json)
+- Python database path in [config/settings.example.json](config/settings.example.json)
 
 ## Configuration
 
 The main configuration reference is [config/settings.example.json](config/settings.example.json).
+
+The installation also runs an interactive configuration wizard. Its main sections are:
+
+| Wizard section | What it configures |
+|---|---|
+| `API & Security` | CORS origin, JWT secret, token lifetime, retention policy and kiosk IP bypass rules |
+| `Display & Naming` | Dashboard title, sensor names, fan names, locale, units and airflow display values |
+| `Kiosk Mode` | Dedicated kiosk display behavior, local user, inline layout, cursor hiding, autologin, screen blanking and autostart |
+| `MQTT Broker` | Local Mosquitto setup, WebSocket port, optional local authentication and optional MQTT bridge settings |
+| `1-Wire Temperature Sensors` | Detection and assignment of the two DS18B20 probe identifiers |
+| `Thresholds & Timing` | System fan threshold, database write interval, screen standby delay and PWM timing settings |
+
+If kiosk mode is enabled, the installer then runs a second kiosk-specific step to apply the desktop autologin, screen blanking and Chromium autostart configuration.
 
 ### Core settings
 
