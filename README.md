@@ -27,17 +27,19 @@ https://github.com/user-attachments/assets/5256e6de-0484-4bef-b895-a79b62438027
 
 ![ThermalGuard HAT wiring schematic](docs/images/thermalguard-scheme.png)
 
-## What The Project Does
+## Features
 
-ThermalGuard HAT is designed to:
-
-- read two DS18B20 temperature probes
-- read ambient humidity and temperature from an SHT31D sensor
-- drive two PWM fans
-- monitor fan RPM and system current
-- expose live telemetry through MQTT
-- store history in SQLite
-- provide a web UI for monitoring, setup and control
+- System monitoring for onboard temperature, power consumption and relative humidity
+- Two configurable temperature probes for rack, ambient or custom placement
+- Dual fan control with RPM tracking and airflow estimation
+- Automatic fan curves with linked or independent behavior
+- Temporary boost mode to force maximum cooling for a defined duration
+- Web dashboard with live status cards and historical charts
+- History browsing by custom period, day or hour
+- Local or remote access with authentication
+- Kiosk mode for dedicated wall display or rack display usage
+- End-to-end installation assistant, including kiosk setup
+- Configurable SQLite storage location, including external USB or disk-based storage
 
 The current reference platform for this project is a Raspberry Pi 2B.
 
@@ -157,20 +159,76 @@ The database location is configurable:
 
 ## Configuration
 
-Useful configuration files:
+The main configuration reference is [config/settings.example.json](config/settings.example.json).
 
-- [config/settings.example.json](config/settings.example.json)
-- [python/settings.example.json](python/settings.example.json)
-- [back/appsettings.json](back/appsettings.json)
+### Core settings
 
-Configuration covers:
+| Key | Purpose | Example |
+|---|---|---|
+| `ConnectionStrings.WebApiDatabase` | SQLite database path used by the API | `Data Source=/opt/thermalguard-hat/api/db/LocalDatabase.db` |
+| `Python.DbPath` | SQLite database path used by the Python service | `/opt/thermalguard-hat/api/db/LocalDatabase.db` |
+| `RetentionDays` | Number of days of historical data to keep | `30` |
+| `Auth.JwtSecret` | Secret used to sign JWT tokens | `change-me-in-production-at-least-32-chars!!` |
+| `Auth.TokenExpiryHours` | JWT validity duration in hours | `12` |
+| `AllowedOrigins` | Allowed frontend origin for CORS | `http://raspberrypi.local` |
 
-- database path
-- MQTT broker settings
-- sensor identifiers
-- GPIO mapping
-- JWT authentication secret
-- display labels and UI naming
+### MQTT and broker settings
+
+| Key | Purpose | Example |
+|---|---|---|
+| `BrokerHostSettings.Host` | MQTT broker hostname or IP | `127.0.0.1` |
+| `BrokerHostSettings.Port` | MQTT TCP port | `1883` |
+| `BrokerHostSettings.WsPort` | MQTT over WebSocket port | `1884` |
+| `BrokerHostSettings.User` | MQTT username | `your-user` |
+| `BrokerHostSettings.Password` | MQTT password | `your-password` |
+| `BrokerHostSettings.UseTls` | Enable TLS for broker communication | `false` |
+| `Mosquitto.Local.Authentication.Enabled` | Enable authentication on local Mosquitto | `false` |
+| `Mosquitto.Bridge.Enabled` | Enable broker bridge mode | `false` |
+| `Mosquitto.Bridge.Host` | Upstream broker hostname | `mqtt.example.com` |
+| `Mosquitto.Bridge.Port` | Upstream broker port | `1883` |
+
+### Sensors, cooling and hardware pins
+
+| Key | Purpose | Example |
+|---|---|---|
+| `Python.Sensor1Uid` | 1-Wire identifier for probe 1 | `xxxxxxxxxxxx` |
+| `Python.Sensor2Uid` | 1-Wire identifier for probe 2 | `xxxxxxxxxxxx` |
+| `Python.SysFanThreshold` | Temperature threshold for the system fan | `38` |
+| `Python.Fan1Pin` | PWM pin for fan 1 | `12` |
+| `Python.Fan2Pin` | PWM pin for fan 2 | `13` |
+| `Python.Fan1Sensor` | Tachometer input for fan 1 | `25` |
+| `Python.Fan2Sensor` | Tachometer input for fan 2 | `24` |
+| `Python.SystemFan` | GPIO pin for the auxiliary system fan | `23` |
+| `Python.SysBuzzer` | GPIO pin for the buzzer | `22` |
+| `Python.Button1Pin` | GPIO pin for button 1 | `17` |
+| `Python.Button2Pin` | GPIO pin for button 2 | `0` |
+
+### Display and UI labels
+
+| Key | Purpose | Example |
+|---|---|---|
+| `Display.DashboardTitle` | Dashboard title shown in the UI | `Dashboard` |
+| `Display.Sensor1Name` | Label for probe 1 | `Rack` |
+| `Display.Sensor2Name` | Label for probe 2 | `Ambient` |
+| `Display.Fan1Name` | Label for fan 1 | `Intake Fan` |
+| `Display.Fan2Name` | Label for fan 2 | `Exhaust Fan` |
+| `Display.Locale` | UI locale | `en-US` |
+| `Display.TemperatureUnit` | Temperature unit | `C` |
+| `Display.AirflowUnit` | Airflow unit displayed in the UI | `m3h` |
+| `Display.Fan1MaxAirflow` | Reference airflow value for fan 1 | `95` |
+| `Display.Fan2MaxAirflow` | Reference airflow value for fan 2 | `95` |
+
+### Kiosk settings
+
+| Key | Purpose | Example |
+|---|---|---|
+| `Kiosk.BypassIPs` | IP addresses allowed to access kiosk mode without standard login | `[]` |
+| `KioskSetup.Enabled` | Enable kiosk setup during installation | `false` |
+| `KioskSetup.User` | Desktop user used for kiosk autologin | `pi` |
+| `KioskSetup.HideCursor` | Hide mouse cursor in kiosk mode | `true` |
+| `KioskSetup.DesktopAutologin` | Enable desktop autologin | `true` |
+| `KioskSetup.DisableScreenBlanking` | Disable screen blanking and sleep | `true` |
+| `KioskSetup.Autostart` | Launch kiosk automatically on boot | `true` |
 
 ## Security
 
