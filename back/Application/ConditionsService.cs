@@ -9,7 +9,10 @@ public class ConditionsService(AppDbContext db)
 
     public List<Condition> GetAll()
     {
-        return db.Conditions.ToList();
+        return db.Conditions
+            .OrderBy(condition => condition.MinTemp1)
+            .ThenBy(condition => condition.MinTemp2)
+            .ToList();
     }
 
     public void ReplaceAll(List<Condition> conditions)

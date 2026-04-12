@@ -5,7 +5,10 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development"
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "test:watch": "ng test --watch",
+    "test:ci": "ng test --watch=false"
   },
   "prettier": {
     "printWidth": 100,
@@ -40,6 +43,8 @@
     "@angular/build": "^20.3.3",
     "@angular/cli": "^20.3.3",
     "@angular/compiler-cli": "^20.3.0",
-    "typescript": "~5.9.2"
+    "jsdom": "^26.1.0",
+    "typescript": "~5.9.2",
+    "vitest": "^3.2.4"
   }
 }

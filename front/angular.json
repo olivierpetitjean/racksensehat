@@ -75,6 +75,14 @@
           },
           "defaultConfiguration": "development"
         },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "tsconfig.spec.json",
+            "runner": "vitest",
+            "buildTarget": "front:build:development"
+          }
+        },
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n"
         }
