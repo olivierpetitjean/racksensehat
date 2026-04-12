@@ -172,6 +172,12 @@ The web interface provides both live monitoring cards and historical charts.
 
 ![ThermalGuard HAT dashboard history](docs/images/thermalguard-dashboard-history.png)
 
+## Kiosk Mode
+
+ThermalGuard HAT can run in kiosk mode for a dedicated rack display, with optional autologin, Chromium autostart, cursor hiding and screen blanking control.
+
+https://github.com/user-attachments/assets/4835362a-f0eb-4a68-aef2-a2beec968b18
+
 ## Installation
 
 Run the installation script on the Raspberry Pi as root:
